@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const crypto = require('crypto');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -121,34 +122,19 @@ router.post('/login', [
   }
 });
 
-// Remove OTP/verification and password reset routes or keep them disabled
-
-module.exports = router;
+// @route   GET /api/auth/me
 // @desc    Get current user
 // @access  Private
-router.get('/me', async (req, res) => {
+router.get('/me', protect, async (req, res) => {
   try {
-    // This route will be protected by middleware
     const user = await User.findById(req.user.id).select('-password');
-
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-
-    res.json({
-      success: true,
-      user
-    });
-
+    return res.json({ success: true, user });
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

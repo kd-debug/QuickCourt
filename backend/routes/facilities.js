@@ -1,7 +1,47 @@
 const express = require('express');
+const { protect, authorize } = require('../middleware/auth');
+const Facility = require('../models/Facility');
+
 const router = express.Router();
 
-// Placeholder for facilities routes
-// Will be implemented in future iterations
+// Public: list/search facilities
+router.get('/', async (req, res) => {
+    try {
+        const { city, sport, q } = req.query;
+        const query = { isActive: true, isApproved: true };
+        if (city) query['address.city'] = new RegExp(`^${city}$`, 'i');
+        if (sport) query.sports = { $in: [new RegExp(sport, 'i')] };
+        if (q) query.name = new RegExp(q, 'i');
+
+        const facilities = await Facility.find(query).sort({ createdAt: -1 });
+        res.json({ success: true, facilities });
+    } catch (error) {
+        console.error('List facilities error:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch facilities' });
+    }
+});
+
+// Owner: create facility
+router.post('/', protect, authorize('facility_owner', 'admin'), async (req, res) => {
+    try {
+        const data = { ...req.body, owner: req.user._id };
+        const facility = await Facility.create(data);
+        res.status(201).json({ success: true, facility });
+    } catch (error) {
+        console.error('Create facility error:', error);
+        res.status(400).json({ success: false, message: 'Failed to create facility' });
+    }
+});
+
+// Owner: list own facilities
+router.get('/mine', protect, authorize('facility_owner', 'admin'), async (req, res) => {
+    try {
+        const facilities = await Facility.find({ owner: req.user._id });
+        res.json({ success: true, facilities });
+    } catch (error) {
+        console.error('My facilities error:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch facilities' });
+    }
+});
 
 module.exports = router;
