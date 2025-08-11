@@ -22,7 +22,7 @@ const SignupPage = () => {
   const roles = [
     { value: 'user', label: 'Sports Enthusiast', description: 'Book courts and join matches' },
     { value: 'facility_owner', label: 'Facility Owner', description: 'Manage your sports facilities' },
-    //{ value: 'admin', label: 'Administrator', description: 'Platform management and oversight' }
+    // { value: 'admin', label: 'Administrator', description: 'Platform management and oversight' }
   ];
 
   const handleChange = (e) => {

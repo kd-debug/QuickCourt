@@ -8,6 +8,8 @@ const bookingSchema = new mongoose.Schema(
         endTime: { type: Date, required: true },
         amount: { type: Number, required: true, min: 0 },
         status: { type: String, enum: ['pending', 'confirmed', 'cancelled', 'completed'], default: 'pending' },
+        selectedCourts: [{ type: String }],
+        sport: { type: String },
         notes: { type: String },
     },
     { timestamps: true }

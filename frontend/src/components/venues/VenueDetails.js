@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Rating = ({ value = 0, count = 0 }) => (
@@ -12,6 +12,7 @@ const Rating = ({ value = 0, count = 0 }) => (
 
 const VenueDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [facility, setFacility] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -60,7 +61,14 @@ const VenueDetails = () => {
                         <p className="text-gray-700 leading-relaxed">{facility.description || 'No description added.'}</p>
                     </div>
                     <aside className="space-y-3">
-                        <button className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold">Book This Venue</button>
+                        <button 
+                            onClick={() => navigate(`/dashboard/venues/${id}/book`, { 
+                                state: { sport: facility?.category } 
+                            })}
+                            className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700"
+                        >
+                            Book This Venue
+                        </button>
                         <div className="p-4 border rounded-lg">
                             <div className="font-semibold mb-1">Open Hours</div>
                             <div className="text-sm text-gray-700">{facility.openHours?.open || '--'} - {facility.openHours?.close || '--'}</div>
