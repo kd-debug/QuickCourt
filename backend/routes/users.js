@@ -208,6 +208,7 @@ router.get('/stats', protect, async (req, res) => {
     let todayBookings = 0;
     let favoriteCount = req.user.favorites ? req.user.favorites.length : 0;
     let reviewsGiven = 0;
+    let totalFacilities = 0;
 
     const userId = req.user._id;
     const now = new Date();
@@ -217,75 +218,60 @@ router.get('/stats', protect, async (req, res) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     if (req.user.role === 'facility_owner') {
-      // For facility owners, get bookings for their facilities
+      // Count owner's facilities
       const Facility = require('../models/Facility');
+      totalFacilities = await Facility.countDocuments({ owner: userId });
+
+      // Get bookings for owner's facilities
       const myFacilities = await Facility.find({ owner: userId }).select('_id');
       const facilityIds = myFacilities.map(f => f._id);
 
-      // Total bookings (all bookings for their facilities, excluding cancelled)
-      totalBookings = await Booking.countDocuments({
-        facility: { $in: facilityIds },
-        status: { $ne: 'cancelled' }
-      });
+      if (facilityIds.length > 0) {
+        const allBookings = await Booking.find({ facility: { $in: facilityIds } });
+        totalBookings = allBookings.length;
 
-      // Today's bookings (bookings made today for their facilities, excluding cancelled)
-      todayBookings = await Booking.countDocuments({
-        facility: { $in: facilityIds },
-        status: { $ne: 'cancelled' },
-        createdAt: { $gte: today, $lt: tomorrow }
-      });
+        // Today's bookings
+        todayBookings = allBookings.filter(booking => {
+          const bookingDate = new Date(booking.startTime);
+          return bookingDate >= today && bookingDate < tomorrow;
+        }).length;
 
-      // Active bookings (future bookings, excluding cancelled)
-      activeBookings = await Booking.countDocuments({
-        facility: { $in: facilityIds },
-        startTime: { $gte: now },
-        status: { $in: ['pending', 'confirmed'] }
-      });
-
-      // Reviews given by users for their facilities
-      reviewsGiven = await Booking.countDocuments({
-        facility: { $in: facilityIds },
-        rating: { $exists: true, $ne: null }
-      });
-    } else {
-      // For regular users
-      totalBookings = await Booking.countDocuments({ user: userId, status: { $ne: 'cancelled' } });
-      todayBookings = await Booking.countDocuments({
-        user: userId,
-        status: { $ne: 'cancelled' },
-        createdAt: { $gte: today, $lt: tomorrow }
-      });
-      activeBookings = await Booking.countDocuments({
-        user: userId,
-        startTime: { $gte: now },
-        status: { $in: ['pending', 'confirmed'] }
-      });
-      reviewsGiven = await Booking.countDocuments({
-        user: userId,
-        rating: { $exists: true, $ne: null }
-      });
-    }
-
-    // For owners, provide facility count
-    let myFacilities = 0;
-    if (req.user.role === 'facility_owner') {
-      const Facility = require('../models/Facility');
-      myFacilities = await Facility.countDocuments({ owner: userId });
-    }
-
-    res.json({
-      success: true,
-      stats: {
-        activeBookings,
-        totalBookings,
-        todayBookings,
-        favoriteCount,
-        reviewsGiven,
-        myFacilities
+        // Active bookings (pending or confirmed)
+        activeBookings = allBookings.filter(booking =>
+          ['pending', 'confirmed'].includes(booking.status)
+        ).length;
       }
-    });
+    } else {
+      // Regular user stats
+      const userBookings = await Booking.find({ user: userId });
+      totalBookings = userBookings.length;
+
+      // Today's bookings
+      todayBookings = userBookings.filter(booking => {
+        const bookingDate = new Date(booking.startTime);
+        return bookingDate >= today && bookingDate < tomorrow;
+      }).length;
+
+      // Active bookings
+      activeBookings = userBookings.filter(booking =>
+        ['pending', 'confirmed'].includes(booking.status)
+      ).length;
+
+      // Reviews given
+      reviewsGiven = userBookings.filter(booking => booking.review).length;
+    }
+
+    const stats = {
+      activeBookings,
+      totalBookings,
+      todayBookings,
+      totalFacilities,
+      ...(req.user.role !== 'facility_owner' && { favoriteCount, reviewsGiven })
+    };
+
+    res.json({ success: true, stats });
   } catch (error) {
-    console.error('Stats error:', error);
+    console.error('Get stats error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch stats' });
   }
 });

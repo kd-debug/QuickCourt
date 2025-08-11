@@ -10,6 +10,9 @@ import VenueDetails from '../venues/VenueDetails';
 import VenueBooking from '../venues/VenueBooking';
 import MyBookings from './MyBookings';
 import OwnerBookings from './OwnerBookings';
+import Analytics from './Analytics';
+import AdminUserManagement from './AdminUserManagement';
+import AdminPlatformAnalytics from './AdminPlatformAnalytics';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -28,6 +31,9 @@ const Dashboard = () => {
             <Route path="/facilities" element={<MyFacilities />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/owner-bookings" element={<OwnerBookings />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/user-management" element={<AdminUserManagement />} />
+            <Route path="/platform-analytics" element={<AdminPlatformAnalytics />} />
           </Routes>
         </div>
       </div>

@@ -27,6 +27,11 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'facility_owner', 'admin'],
         default: 'user'
     },
+    status: {
+        type: String,
+        enum: ['active', 'banned', 'pending'],
+        default: 'active'
+    },
     avatar: {
         type: String,
         default: 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg'

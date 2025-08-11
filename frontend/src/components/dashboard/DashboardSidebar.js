@@ -40,9 +40,8 @@ const DashboardSidebar = () => {
       );
     } else if (user?.role === 'admin') {
       baseItems.push(
-        { path: '/dashboard/users', icon: <Users className="w-5 h-5" />, label: 'User Management' },
-        { path: '/dashboard/facilities', icon: <Building className="w-5 h-5" />, label: 'Facility Approval' },
-        { path: '/dashboard/analytics', icon: <BarChart3 className="w-5 h-5" />, label: 'Platform Analytics' }
+        { path: '/dashboard/user-management', icon: <Users className="w-5 h-5" />, label: 'User Management' },
+        { path: '/dashboard/platform-analytics', icon: <BarChart3 className="w-5 h-5" />, label: 'Platform Analytics' }
       );
     } else {
       baseItems.push(
