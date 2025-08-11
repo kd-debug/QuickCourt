@@ -31,11 +31,18 @@ const VenuesList = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {facilities.map((f) => (
-                        <div key={f._id} className="card p-4">
-                            <h3 className="font-semibold text-lg">{f.name}</h3>
-                            <p className="text-sm text-gray-600">{f.address?.city}, {f.address?.state}</p>
-                            <p className="text-sm mt-2">Sports: {(f.sports || []).join(', ')}</p>
-                            <p className="text-sm mt-1">Price/hr: ₹{f.pricePerHour}</p>
+                        <div key={f._id} className="card p-0 overflow-hidden">
+                            {Array.isArray(f.images) && f.images.length > 0 ? (
+                                <img src={f.images[0]} alt={`${f.name} image`} className="h-40 w-full object-cover" />
+                            ) : (
+                                <div className="h-40 w-full bg-secondary-100 flex items-center justify-center text-secondary-400">Image</div>
+                            )}
+                            <div className="p-4">
+                                <h3 className="font-semibold text-lg">{f.name}</h3>
+                                <p className="text-sm text-gray-600">{f.address?.city}, {f.address?.state}</p>
+                                <p className="text-sm mt-2">Sports: {(f.sports || []).join(', ')}</p>
+                                <p className="text-sm mt-1">Price/hr: ₹{f.pricePerHour}</p>
+                            </div>
                         </div>
                     ))}
                 </div>

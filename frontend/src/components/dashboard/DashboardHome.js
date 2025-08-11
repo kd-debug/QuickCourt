@@ -77,13 +77,7 @@ const DashboardHome = () => {
             <div className="min-h-screen flex flex-col bg-secondary-50">
                 {/* Top Bar */}
                 <div className="bg-white border-b border-secondary-100 px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <span className="font-semibold text-lg">QUICKCOURT</span>
-                        <span className="ml-4 flex items-center bg-secondary-100 px-3 py-1 rounded-full">
-                            <span className="text-xs text-secondary-700 mr-2">📍</span>
-                            <span className="text-sm font-medium">Ahmedabad</span>
-                        </span>
-                    </div>
+
                     <div>
                         <button className="bg-primary-600 text-white px-4 py-2 rounded-lg font-medium">Book</button>
                     </div>

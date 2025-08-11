@@ -17,7 +17,7 @@ const Profile = () => {
         <div className="lg:col-span-2">
           <div className="card">
             <h3 className="text-lg font-semibold text-secondary-900 mb-6">Personal Information</h3>
-            
+
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -112,15 +112,15 @@ const Profile = () => {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-secondary-600">Total Bookings</span>
-                <span className="font-semibold text-secondary-900">8</span>
+                <span className="font-semibold text-secondary-900">0</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-secondary-600">Favorite Venues</span>
-                <span className="font-semibold text-secondary-900">3</span>
+                <span className="font-semibold text-secondary-900">0</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-secondary-600">Reviews Given</span>
-                <span className="font-semibold text-secondary-900">5</span>
+                <span className="font-semibold text-secondary-900">0</span>
               </div>
             </div>
           </div>
