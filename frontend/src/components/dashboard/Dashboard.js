@@ -6,6 +6,7 @@ import DashboardHome from './DashboardHome';
 import Profile from './Profile';
 import Venues from '../venues/VenuesList';
 import MyFacilities from '../venues/MyFacilities';
+import VenueDetails from '../venues/VenueDetails';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -19,6 +20,7 @@ const Dashboard = () => {
             <Route path="/" element={<DashboardHome />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/venues" element={<Venues />} />
+            <Route path="/venues/:id" element={<VenueDetails />} />
             <Route path="/facilities" element={<MyFacilities />} />
           </Routes>
         </div>

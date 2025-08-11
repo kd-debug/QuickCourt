@@ -77,7 +77,13 @@ const DashboardHome = () => {
             <div className="min-h-screen flex flex-col bg-secondary-50">
                 {/* Top Bar */}
                 <div className="bg-white border-b border-secondary-100 px-6 py-4 flex items-center justify-between">
-
+                    <div className="flex items-center space-x-2">
+                        <span className="font-semibold text-lg">QUICKCOURT</span>
+                        <span className="ml-4 flex items-center bg-secondary-100 px-3 py-1 rounded-full">
+                            <span className="text-xs text-secondary-700 mr-2">📍</span>
+                            <span className="text-sm font-medium">Ahmedabad</span>
+                        </span>
+                    </div>
                     <div>
                         <button className="bg-primary-600 text-white px-4 py-2 rounded-lg font-medium">Book</button>
                     </div>
@@ -89,16 +95,17 @@ const DashboardHome = () => {
                     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
                         <h2 className="text-xl font-bold mb-2">Find Players & Venues Nearby</h2>
                         <p className="text-gray-600 mb-4">Seamlessly explore sports venues and play with sports enthusiasts just like you!</p>
-                        {/* Optionally add a search bar here */}
                     </div>
 
-                    {/* Book Venues Carousel */}
+                    {/* Book Venues Carousel + Categories */}
                     <div className="mb-8">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-semibold">Book Venues</h2>
                             <a href="/dashboard/venues" className="text-primary-600 hover:underline text-sm">See all venues &rarr;</a>
                         </div>
-                        <VenuesCarousel />
+
+                        {/* Category chips */}
+                        <CategoryFilter />
                     </div>
 
                     {/* Popular Sports */}
@@ -172,3 +179,28 @@ const DashboardHome = () => {
 };
 
 export default DashboardHome;
+
+// Helper component for category filter + carousel
+const CategoryFilter = () => {
+    const categories = ['all', 'cricket', 'badminton', 'basketball', 'football', 'tennis', 'table tennis', 'swimming pool'];
+    const [active, setActive] = useState('all');
+
+    return (
+        <div className="space-y-4">
+            <div className="overflow-x-auto">
+                <div className="flex gap-2 pb-2">
+                    {categories.map((c) => (
+                        <button
+                            key={c}
+                            onClick={() => setActive(c)}
+                            className={`px-3 py-1 rounded-full text-sm border ${active === c ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-secondary-700 border-secondary-200'}`}
+                        >
+                            {c.charAt(0).toUpperCase() + c.slice(1)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <VenuesCarousel category={active === 'all' ? '' : active} />
+        </div>
+    );
+};

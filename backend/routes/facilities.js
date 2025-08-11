@@ -44,4 +44,18 @@ router.get('/mine', protect, authorize('facility_owner', 'admin'), async (req, r
     }
 });
 
+// Public: get a single facility by id
+router.get('/:id', async (req, res) => {
+    try {
+        const facility = await Facility.findById(req.params.id);
+        if (!facility || !facility.isActive || !facility.isApproved) {
+            return res.status(404).json({ success: false, message: 'Facility not found' });
+        }
+        res.json({ success: true, facility });
+    } catch (error) {
+        console.error('Get facility error:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch facility' });
+    }
+});
+
 module.exports = router;
