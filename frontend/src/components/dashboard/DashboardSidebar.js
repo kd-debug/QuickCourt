@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { 
-  Home, 
-  User, 
-  Calendar, 
-  MapPin, 
-  Settings, 
-  LogOut, 
-  Menu, 
+import {
+  Home,
+  User,
+  Calendar,
+  MapPin,
+  Settings,
+  LogOut,
+  Menu,
   X,
   Building,
   Users,
@@ -35,7 +35,7 @@ const DashboardSidebar = () => {
     if (user?.role === 'facility_owner') {
       baseItems.push(
         { path: '/dashboard/facilities', icon: <Building className="w-5 h-5" />, label: 'My Facilities' },
-        { path: '/dashboard/bookings', icon: <Calendar className="w-5 h-5" />, label: 'Bookings' },
+        { path: '/dashboard/owner-bookings', icon: <Calendar className="w-5 h-5" />, label: 'Bookings' },
         { path: '/dashboard/analytics', icon: <BarChart3 className="w-5 h-5" />, label: 'Analytics' }
       );
     } else if (user?.role === 'admin') {
@@ -46,7 +46,7 @@ const DashboardSidebar = () => {
       );
     } else {
       baseItems.push(
-        { path: '/dashboard/bookings', icon: <Calendar className="w-5 h-5" />, label: 'My Bookings' },
+        { path: '/dashboard/my-bookings', icon: <Calendar className="w-5 h-5" />, label: 'My Bookings' },
         { path: '/dashboard/venues', icon: <MapPin className="w-5 h-5" />, label: 'Find Venues' }
       );
     }
@@ -70,7 +70,7 @@ const DashboardSidebar = () => {
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
+        fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 h-screen
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Logo */}
@@ -124,7 +124,7 @@ const DashboardSidebar = () => {
         </nav>
 
         {/* Bottom Section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-secondary-200">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-secondary-200 bg-white">
           <button
             onClick={handleLogout}
             className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900 transition-all duration-200"

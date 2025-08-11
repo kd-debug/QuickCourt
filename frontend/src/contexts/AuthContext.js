@@ -129,7 +129,11 @@ export const AuthProvider = ({ children }) => {
 
   const clearError = () => dispatch({ type: 'CLEAR_ERROR' });
 
-  const value = { user: state.user, token: state.token, isAuthenticated: state.isAuthenticated, loading: state.loading, error: state.error, register, login, logout, updateProfile, forgotPassword, clearError };
+  const updateUser = (userData) => {
+    dispatch({ type: 'UPDATE_USER', payload: userData });
+  };
+
+  const value = { user: state.user, token: state.token, isAuthenticated: state.isAuthenticated, loading: state.loading, error: state.error, register, login, logout, updateProfile, forgotPassword, clearError, updateUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

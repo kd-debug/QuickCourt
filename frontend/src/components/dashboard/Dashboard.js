@@ -9,6 +9,7 @@ import MyFacilities from '../venues/MyFacilities';
 import VenueDetails from '../venues/VenueDetails';
 import VenueBooking from '../venues/VenueBooking';
 import MyBookings from './MyBookings';
+import OwnerBookings from './OwnerBookings';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ const Dashboard = () => {
             <Route path="/venues/:id/book" element={<VenueBooking />} />
             <Route path="/facilities" element={<MyFacilities />} />
             <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/owner-bookings" element={<OwnerBookings />} />
           </Routes>
         </div>
       </div>

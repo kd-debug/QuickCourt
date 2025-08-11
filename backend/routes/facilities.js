@@ -33,6 +33,33 @@ router.post('/', protect, authorize('facility_owner', 'admin'), async (req, res)
     }
 });
 
+// Owner: update facility
+router.put('/:id', protect, authorize('facility_owner', 'admin'), async (req, res) => {
+    try {
+        const facility = await Facility.findById(req.params.id);
+
+        if (!facility) {
+            return res.status(404).json({ success: false, message: 'Facility not found' });
+        }
+
+        // Check if user owns this facility
+        if (facility.owner.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ success: false, message: 'Not authorized to update this facility' });
+        }
+
+        const updatedFacility = await Facility.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        res.json({ success: true, facility: updatedFacility });
+    } catch (error) {
+        console.error('Update facility error:', error);
+        res.status(400).json({ success: false, message: 'Failed to update facility' });
+    }
+});
+
 // Owner: list own facilities
 router.get('/mine', protect, authorize('facility_owner', 'admin'), async (req, res) => {
     try {

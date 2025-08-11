@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users, Settings, BookOpen, TrendingUp, Clock } from 'lucide-react';
 import axios from 'axios';
 import VenuesCarousel from './VenuesCarousel';
@@ -7,7 +8,8 @@ import PopularSports from './PopularSports';
 
 const DashboardHome = () => {
     const { user } = useAuth();
-    const [stats, setStats] = useState({ activeBookings: 0, totalBookings: 0, favoriteCount: 0, myFacilities: 0 });
+    const navigate = useNavigate();
+    const [stats, setStats] = useState({ activeBookings: 0, totalBookings: 0, todayBookings: 0, favoriteCount: 0, myFacilities: 0 });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -16,7 +18,7 @@ const DashboardHome = () => {
                 const res = await axios.get('/api/users/stats');
                 setStats(res.data.stats);
             } catch (e) {
-                setStats({ activeBookings: 0, totalBookings: 0, favoriteCount: 0, myFacilities: 0 });
+                setStats({ activeBookings: 0, totalBookings: 0, todayBookings: 0, favoriteCount: 0, myFacilities: 0 });
             } finally {
                 setLoading(false);
             }
@@ -35,14 +37,14 @@ const DashboardHome = () => {
             case 'facility_owner':
                 return [
                     { icon: MapPin, label: 'My Facilities', href: '/dashboard/facilities', color: 'bg-indigo-500' },
-                    { icon: Calendar, label: 'Bookings', href: '/dashboard/bookings', color: 'bg-orange-500' },
+                    { icon: Calendar, label: 'Bookings', href: '/dashboard/owner-bookings', color: 'bg-orange-500' },
                     { icon: TrendingUp, label: 'Revenue', href: '/dashboard/revenue', color: 'bg-green-500' }
                 ];
             default:
                 return [
-                    { icon: Calendar, label: 'My Bookings', href: '/dashboard/bookings', color: 'bg-blue-500' },
+                    { icon: Calendar, label: 'My Bookings', href: '/dashboard/my-bookings', color: 'bg-blue-500' },
                     { icon: MapPin, label: 'Find Venues', href: '/dashboard/venues', color: 'bg-indigo-500' },
-                    { icon: BookOpen, label: 'Booking History', href: '/dashboard/history', color: 'bg-purple-500' }
+                    { icon: BookOpen, label: 'Booking History', href: '/dashboard/my-bookings', color: 'bg-purple-500' }
                 ];
         }
     };
@@ -60,7 +62,7 @@ const DashboardHome = () => {
         if (user?.role === 'facility_owner') {
             return [
                 { label: 'My Facilities', value: stats.myFacilities || 0, icon: MapPin, color: 'text-indigo-600' },
-                { label: "Today's Bookings", value: stats.activeBookings || 0, icon: Calendar, color: 'text-orange-600' },
+                { label: "Today's Bookings", value: stats.todayBookings || 0, icon: Calendar, color: 'text-orange-600' },
                 { label: 'Total Bookings', value: stats.totalBookings || 0, icon: TrendingUp, color: 'text-green-600' }
             ];
         }
@@ -149,7 +151,11 @@ const DashboardHome = () => {
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {getQuickActions().map((action, index) => (
-                            <button key={index} className="flex items-center space-x-3 p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 group">
+                            <button
+                                key={index}
+                                onClick={() => navigate(action.href)}
+                                className="flex items-center space-x-3 p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 group"
+                            >
                                 <div className={`p-2 rounded-lg ${action.color} text-white`}>
                                     <action.icon className="w-5 h-5" />
                                 </div>

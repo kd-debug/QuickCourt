@@ -7,6 +7,8 @@ const outdoorCategories = ['cricket', 'swimming pool', 'football', 'basketball']
 const MyFacilities = () => {
     const [facilities, setFacilities] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingFacility, setEditingFacility] = useState(null);
     const [form, setForm] = useState({
         name: '',
         pricePerHour: 0,
@@ -42,7 +44,19 @@ const MyFacilities = () => {
         setForm((prev) => ({ ...prev, images: base64Images }));
     };
 
+    const handleEditImages = async (e) => {
+        const files = Array.from(e.target.files || []);
+        const readers = files.map(file => new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+        }));
+        const base64Images = await Promise.all(readers);
+        setEditingFacility((prev) => ({ ...prev, images: base64Images }));
+    };
+
     const categories = form.sportType === 'indoor' ? indoorCategories : outdoorCategories;
+    const editCategories = editingFacility?.sportType === 'indoor' ? indoorCategories : outdoorCategories;
 
     const handleCreate = async (e) => {
         e.preventDefault();
@@ -70,6 +84,41 @@ const MyFacilities = () => {
             });
             load();
         } catch (e) { }
+    };
+
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.put(`/api/facilities/${editingFacility._id}`, {
+                name: editingFacility.name,
+                pricePerHour: Number(editingFacility.pricePerHour),
+                sportType: editingFacility.sportType,
+                category: editingFacility.category,
+                openHours: editingFacility.openHours,
+                address: {
+                    line1: editingFacility.address.line1,
+                    city: editingFacility.address.city,
+                    state: editingFacility.address.state,
+                    pincode: editingFacility.address.pincode,
+                },
+                description: editingFacility.description,
+                images: editingFacility.images,
+                sports: [editingFacility.category],
+            });
+            setShowEditModal(false);
+            setEditingFacility(null);
+            load();
+        } catch (e) { }
+    };
+
+    const openEditModal = (facility) => {
+        setEditingFacility({
+            ...facility,
+            openHours: facility.openHours || { open: '', close: '' },
+            address: facility.address || { line1: '', city: '', state: '', pincode: '' },
+            images: facility.images || []
+        });
+        setShowEditModal(true);
     };
 
     return (
@@ -126,7 +175,7 @@ const MyFacilities = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {facilities.map((f) => (
-                        <div key={f._id} className="card p-4">
+                        <div key={f._id} className="card p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => openEditModal(f)}>
                             <h3 className="font-semibold text-lg">{f.name}</h3>
                             <p className="text-sm text-gray-600 capitalize">{f.sportType} • {f.category}</p>
                             <p className="text-sm text-gray-600">{f.address?.city}, {f.address?.state}</p>
@@ -134,8 +183,94 @@ const MyFacilities = () => {
                             {Array.isArray(f.images) && f.images.length > 0 && (
                                 <img src={f.images[0]} alt="facility" className="mt-2 h-32 w-full object-cover rounded-md" />
                             )}
+                            <div className="mt-2 text-xs text-primary-600">Click to edit</div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Edit Facility Modal */}
+            {showEditModal && editingFacility && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold">Edit Facility: {editingFacility.name}</h3>
+                            <button
+                                onClick={() => setShowEditModal(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleEdit} className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input className="input-field" placeholder="Facility Name" value={editingFacility.name} onChange={(e) => setEditingFacility({ ...editingFacility, name: e.target.value })} />
+                                <input className="input-field" placeholder="Price/hr" type="number" value={editingFacility.pricePerHour} onChange={(e) => setEditingFacility({ ...editingFacility, pricePerHour: e.target.value })} />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <select className="input-field" value={editingFacility.sportType} onChange={(e) => {
+                                    const newType = e.target.value;
+                                    setEditingFacility((prev) => ({ ...prev, sportType: newType, category: (newType === 'indoor' ? indoorCategories[0] : outdoorCategories[0]) }));
+                                }}>
+                                    <option value="indoor">Indoor</option>
+                                    <option value="outdoor">Outdoor</option>
+                                </select>
+
+                                <select className="input-field" value={editingFacility.category} onChange={(e) => setEditingFacility({ ...editingFacility, category: e.target.value })}>
+                                    {editCategories.map((c) => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input className="input-field" placeholder="Opens (e.g., 08:00 AM)" value={editingFacility.openHours.open} onChange={(e) => setEditingFacility({ ...editingFacility, openHours: { ...editingFacility.openHours, open: e.target.value } })} />
+                                <input className="input-field" placeholder="Closes (e.g., 10:00 PM)" value={editingFacility.openHours.close} onChange={(e) => setEditingFacility({ ...editingFacility, openHours: { ...editingFacility.openHours, close: e.target.value } })} />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <input className="input-field md:col-span-2" placeholder="Address Line" value={editingFacility.address.line1} onChange={(e) => setEditingFacility({ ...editingFacility, address: { ...editingFacility.address, line1: e.target.value } })} />
+                                <input className="input-field" placeholder="City" value={editingFacility.address.city} onChange={(e) => setEditingFacility({ ...editingFacility, address: { ...editingFacility.address, city: e.target.value } })} />
+                                <input className="input-field" placeholder="State" value={editingFacility.address.state} onChange={(e) => setEditingFacility({ ...editingFacility, address: { ...editingFacility.address, state: e.target.value } })} />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input className="input-field" placeholder="Pincode" value={editingFacility.address.pincode} onChange={(e) => setEditingFacility({ ...editingFacility, address: { ...editingFacility.address, pincode: e.target.value } })} />
+                            </div>
+
+                            <textarea className="input-field w-full" placeholder="Description" value={editingFacility.description} onChange={(e) => setEditingFacility({ ...editingFacility, description: e.target.value })} />
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Update Photos</label>
+                                <input type="file" accept="image/*" multiple onChange={handleEditImages} />
+                                {editingFacility.images.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {editingFacility.images.map((src, idx) => (
+                                            <img key={idx} src={src} alt={`preview-${idx}`} className="h-16 w-24 object-cover rounded-md border" />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex space-x-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEditModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                                >
+                                    Update Facility
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

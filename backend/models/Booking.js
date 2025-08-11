@@ -11,6 +11,10 @@ const bookingSchema = new mongoose.Schema(
         selectedCourts: [{ type: String }],
         sport: { type: String },
         notes: { type: String },
+        // Review and rating fields
+        rating: { type: Number, min: 1, max: 5 },
+        review: { type: String, maxlength: 500 },
+        reviewedAt: { type: Date },
     },
     { timestamps: true }
 );
