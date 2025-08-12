@@ -96,37 +96,7 @@ router.patch('/users/:id/:action', async (req, res) => {
     }
 });
 
-// Delete user
-router.delete('/users/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
 
-        const user = await User.findById(id);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        if (user.role === 'admin') {
-            return res.status(403).json({ success: false, message: 'Cannot delete admin users' });
-        }
-
-        // Delete user's bookings
-        await Booking.deleteMany({ user: id });
-
-        // Delete user's facilities if they're a facility owner
-        if (user.role === 'facility_owner') {
-            await Facility.deleteMany({ owner: id });
-        }
-
-        // Delete the user
-        await User.findByIdAndDelete(id);
-
-        res.json({ success: true, message: 'User deleted successfully' });
-    } catch (error) {
-        console.error('Delete user error:', error);
-        res.status(500).json({ success: false, message: 'Failed to delete user' });
-    }
-});
 
 // Platform analytics endpoints
 router.get('/platform-stats', async (req, res) => {

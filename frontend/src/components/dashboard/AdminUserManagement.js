@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Users, UserCheck, UserX, Trash2, Search, Filter, Ban, CheckCircle } from 'lucide-react';
+import { Users, UserCheck, UserX, Search, Filter, Ban, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -47,21 +47,7 @@ const AdminUserManagement = () => {
         }
     };
 
-    const handleDeleteUser = async (userId, userName) => {
-        if (!window.confirm(`Are you sure you want to permanently delete user "${userName}"? This action cannot be undone.`)) {
-            return;
-        }
 
-        try {
-            const res = await axios.delete(`/api/admin/users/${userId}`);
-            if (res.data.success) {
-                toast.success('User deleted successfully');
-                loadUsers(); // Reload users
-            }
-        } catch (error) {
-            toast.error('Failed to delete user');
-        }
-    };
 
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -276,15 +262,7 @@ const AdminUserManagement = () => {
                                                 </button>
                                             )}
 
-                                            {userItem.role !== 'admin' && (
-                                                <button
-                                                    onClick={() => handleDeleteUser(userItem._id, userItem.fullName)}
-                                                    className="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium hover:bg-red-200 transition-colors"
-                                                >
-                                                    <Trash2 className="w-3 h-3 inline mr-1" />
-                                                    Delete
-                                                </button>
-                                            )}
+
                                         </div>
                                     </td>
                                 </tr>
