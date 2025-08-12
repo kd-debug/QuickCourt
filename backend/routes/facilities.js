@@ -7,11 +7,20 @@ const router = express.Router();
 // Public: list/search facilities
 router.get('/', async (req, res) => {
     try {
-        const { city, sport, q } = req.query;
+        const { city, sport, q, category, type, minPrice, maxPrice, minRating } = req.query;
         const query = { isActive: true, isApproved: true };
+        
         if (city) query['address.city'] = new RegExp(`^${city}$`, 'i');
         if (sport) query.sports = { $in: [new RegExp(sport, 'i')] };
         if (q) query.name = new RegExp(q, 'i');
+        if (category) query.category = new RegExp(category, 'i');
+        if (type) query.sportType = type;
+        if (minPrice || maxPrice) {
+            query.pricePerHour = {};
+            if (minPrice) query.pricePerHour.$gte = Number(minPrice);
+            if (maxPrice) query.pricePerHour.$lte = Number(maxPrice);
+        }
+        if (minRating) query.rating = { $gte: Number(minRating) };
 
         const facilities = await Facility.find(query).sort({ createdAt: -1 });
         res.json({ success: true, facilities });
