@@ -4,6 +4,22 @@ import toast from 'react-hot-toast';
 
 axios.defaults.baseURL = 'http://localhost:5000';
 
+// Global axios interceptor to handle banned user responses
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 403 && error.response?.data?.message?.includes('banned')) {
+      // Clear token and redirect to login for banned users
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
+      toast.error(error.response.data.message);
+      // Force page reload to clear auth state
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 const AuthContext = createContext();
 
 const initialState = {

@@ -29,6 +29,14 @@ const protect = async (req, res, next) => {
         });
       }
 
+      // Check if user is banned
+      if (req.user.status === 'banned') {
+        return res.status(403).json({
+          success: false,
+          message: 'You are banned by admin. Please contact support for more information.'
+        });
+      }
+
       next();
     } catch (error) {
       console.error('Token verification error:', error);

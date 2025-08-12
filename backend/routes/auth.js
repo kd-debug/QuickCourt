@@ -94,6 +94,11 @@ router.post('/login', [
       return res.status(400).json({ success: false, message: 'Account is deactivated. Please contact support.' });
     }
 
+    // Check if user is banned
+    if (user.status === 'banned') {
+      return res.status(403).json({ success: false, message: 'You are banned by admin. Please contact support for more information.' });
+    }
+
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
